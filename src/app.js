@@ -109,20 +109,18 @@ function verifierDate() {
     dateDebut.removeAttribute('aria-describedby');
   }
 }
-
 dateDebut.addEventListener('input', verifierDate);
 
   function ajouterParticipant() {
     const nombre = liste.querySelectorAll('li').length;
 
     if (nombre >= maximum) {
-      erreur.textContent = 'Maximum ' + maximum + ' participants atteint.'; // MODIFIÉ : 20 remplacé par maximum
-      erreur.classList.remove('hidden'); // AJOUT : sinon le message reste caché
+      erreur.textContent = 'Maximum ' + maximum + ' participants atteint.';
+      erreur.classList.remove('hidden');
       return;
     }
 
     const li = document.createElement('li');
-
     li.innerHTML = `
       <input type="text" placeholder="Nom du participant">
 
@@ -135,10 +133,9 @@ dateDebut.addEventListener('input', verifierDate);
 
     mettreAJourCompteur();
     erreur.textContent = '';
-    erreur.classList.add('hidden'); // AJOUT
+    erreur.classList.add('hidden');
   }
 
-  // AJOUT : fait fonctionner le bouton "Retirer"
   liste.addEventListener('click', (e) => {
     const bouton = e.target.closest('[data-action="retirer"]');
     if (!bouton) return;
@@ -176,7 +173,7 @@ dateDebut.addEventListener('input', verifierDate);
     if (periodicite === 'hebdomadaire') {
       date.setDate(date.getDate() + (numeroTour - 1) * 7);
     } else if (periodicite === 'quinzaine') {
-      date.setDate(date.getDate() + (numeroTour - 1) * 14); // MODIFIÉ : 15 -> 14
+      date.setDate(date.getDate() + (numeroTour - 1) * 14); 
     } else if (periodicite === 'mensuelle') {
       const jour = date.getDate();
 
@@ -195,17 +192,15 @@ dateDebut.addEventListener('input', verifierDate);
     return date;
   }
 
-  // AJOUT : date en français, ex. "12 novembre 2026"
   function formaterDate(date) {
     return date.toLocaleDateString('fr-FR', {
       day: 'numeric', month: 'long', year: 'numeric'
     });
   }
 
-  // AJOUT : remplit le tableau (le <tbody id="calendrier-corps"> existe déjà dans ton HTML)
   function construireTableau(nombreTours, montantRecu) {
     const corps = document.getElementById('calendrier-corps');
-    corps.replaceChildren(); // efface l'ancien tableau
+    corps.replaceChildren(); 
 
     const noms = [...liste.querySelectorAll('input')].map(i => i.value.trim());
 
@@ -224,12 +219,12 @@ dateDebut.addEventListener('input', verifierDate);
       valeurs.forEach(v => {
         const td = tr.insertCell();
         td.className = 'px-4 py-3';
-        td.textContent = v; // texte seulement, jamais du HTML
+        td.textContent = v; 
       });
-      tr.insertCell().className = 'px-4 py-3'; // colonne "Action" (vide pour l'instant)
+      tr.insertCell().className = 'px-4 py-3'; 
     }
   }
-  // AJOUT : valide les prénoms (2-30 lettres, accents, apostrophe, tiret, pas de doublon)
+
 function verifierNomsParticipants() {
   const regex = /^[\p{L}'’-]{2,30}$/u;
   const dejaVus = [];
@@ -237,7 +232,7 @@ function verifierNomsParticipants() {
 
   liste.querySelectorAll('input').forEach(champ => {
     const valeur = champ.value.trim();
-    const cle = valeur.toLowerCase(); // insensible à la casse
+    const cle = valeur.toLowerCase();
     let invalide = false;
 
     if (!regex.test(valeur)) {
@@ -262,14 +257,13 @@ function verifierNomsParticipants() {
   erreur.classList.toggle('hidden', message === '');
 }
 
-// AJOUT : l'erreur disparaît dès que la saisie devient valide
 liste.addEventListener('input', () => {
   if (!erreur.classList.contains('hidden')) verifierNomsParticipants();
 });
 
-  function afficherResume() {   // <-- AJOUTE CETTE LIGNE
+  function afficherResume() { 
 
-    // AJOUT : vérifier tous les champs avant d'afficher
+
     verifierNom();
     verifierCotisation();
     verifierPeriodicite();
@@ -283,17 +277,15 @@ liste.addEventListener('input', () => {
       erreur.classList.remove('hidden');
     }
 
-    // focus sur le premier champ en erreur (dans l'ordre de la page)
     const premierInvalide = document.querySelector('[aria-invalid="true"]');
     if (premierInvalide) {
       premierInvalide.focus();
       return;
     }
     if (!assezDeParticipants) {
-      boutonAjouter.focus(); // pas de champ à corriger : on met le focus sur "Ajouter"
+      boutonAjouter.focus();
       return;
     }
-    // FIN AJOUT
 
     const nombreParticipants = liste.querySelectorAll('li').length;
     const montant = Number(cotisation.value);
@@ -320,25 +312,22 @@ liste.addEventListener('input', () => {
       nombreTours;
 
     document.getElementById('resume-dates').textContent =
-      formaterDate(premierTour) + ' – ' + formaterDate(dernierTour); // MODIFIÉ : utilise formaterDate
+      formaterDate(premierTour) + ' – ' + formaterDate(dernierTour);
 
-    construireTableau(nombreTours, montantRecu); // AJOUT
+    construireTableau(nombreTours, montantRecu); 
 
     document.getElementById('etat-vide').classList.add('hidden');
     document.getElementById('contenu-resultat').classList.remove('hidden');
   }
 
-  // AJOUT : le bouton "Générer le calendrier" appelle afficherResume
   document.getElementById('daret-form').addEventListener('submit', (e) => {
     e.preventDefault();
     afficherResume();
   });
 
-  // AJOUT : le bouton "Réinitialiser"
   document.getElementById('reinitialiser').addEventListener('click', () => {
     document.getElementById('daret-form').reset();
 
-    // enlever tous les messages d'erreur
     document.querySelectorAll('[aria-invalid]').forEach(champ => {
       champ.removeAttribute('aria-invalid');
       champ.removeAttribute('aria-describedby');
@@ -348,17 +337,14 @@ liste.addEventListener('input', () => {
       zone.classList.add('hidden');
     });
 
-    // remettre le minimum de participants
     liste.replaceChildren();
     for (let i = 0; i < minimum; i++) ajouterParticipant();
 
-    // vider le résultat
     document.getElementById('calendrier-corps').replaceChildren();
     document.getElementById('contenu-resultat').classList.add('hidden');
     document.getElementById('etat-vide').classList.remove('hidden');
   });
 
-  // AJOUT : au chargement, on commence avec 2 participants (le minimum)
   for (let i = 0; i < minimum; i++) ajouterParticipant();
   mettreAJourCompteur();
 
